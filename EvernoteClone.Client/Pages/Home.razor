@@ -1,0 +1,485 @@
+﻿@page "/"
+@inject INoteService NoteService
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<PageTitle>EvernoteClone - My Notes</PageTitle>
+
+<div class="container-fluid h-100">
+    <div class="row h-100">
+        <!-- Sidebar -->
+        <div class="col-md-3 bg-light border-end sidebar">
+            <div class="p-3">
+                <!-- Search -->
+                <div class="mb-3">
+                    <input type="text" class="form-control" placeholder="Search notes..." 
+                           @bind="searchTerm" @oninput="OnSearchChanged" />
+                </div>
+
+                <!-- New Note Button -->
+                <button class="btn btn-primary w-100 mb-2" @onclick="CreateNewNote" disabled="@isCreatingNote">
+                    @if (isCreatingNote)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <span>Creating...</span>
+                    }
+                    else
+                    {
+                        <i class="fas fa-plus"></i>
+                        <span>New Note</span>
+                    }
+                </button>
+
+                <!-- Bulk Operations Toggle -->
+                <button class="btn @(isBulkMode ? "btn-warning" : "btn-outline-secondary") w-100 mb-2" 
+                        @onclick="ToggleBulkMode">
+                    @if (isBulkMode)
+                    {
+                        <i class="fas fa-times"></i>
+                        <span>Exit Bulk Mode</span>
+                    }
+                    else
+                    {
+                        <i class="fas fa-check-square"></i>
+                        <span>Select Multiple</span>
+                    }
+                </button>
+
+                <!-- Bulk Actions (only show in bulk mode) -->
+                @if (isBulkMode)
+                {
+                    <div class="mb-3">
+                        <div class="d-flex gap-2 mb-2">
+                            <button class="btn btn-sm btn-outline-primary flex-fill" @onclick="SelectAllNotes">
+                                <i class="fas fa-check-double"></i> All
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary flex-fill" @onclick="ClearSelection">
+                                <i class="fas fa-square"></i> None
+                            </button>
+                        </div>
+                        @if (selectedNoteIds.Any())
+                        {
+                            <button class="btn btn-danger w-100" @onclick="DeleteSelectedNotes" disabled="@isDeletingBulk">
+                                @if (isDeletingBulk)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    <span>Deleting...</span>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-trash"></i>
+                                    <span>Delete Selected (@selectedNoteIds.Count)</span>
+                                }
+                            </button>
+                        }
+                    </div>
+                }
+
+                <!-- Clear Selection Button -->
+                @if (selectedNote != null)
+                {
+                    <button class="btn btn-outline-secondary w-100 mb-3" @onclick="ClearSelection">
+                        <i class="fas fa-times"></i> Clear Selection
+                    </button>
+                }
+                else
+                {
+                    <div class="mb-3"></div>
+                }
+
+                <!-- Category Filter -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Categories</label>
+                    <select class="form-select mb-2" @bind="SelectedCategory">
+                        <option value="">All Categories</option>
+                        @foreach (var category in categories)
+                        {
+                            <option value="@category.Name">@category.Name</option>
+                        }
+                    </select>
+                    
+                    <!-- Add Custom Category -->
+                    <div class="input-group">
+                        <input type="text" class="form-control form-control-sm" 
+                               placeholder="Add category..." 
+                               @bind="newCategoryName" 
+                               @onkeypress="OnCategoryKeyPress"
+                               disabled="@isAddingCategory" />
+                        <button class="btn btn-outline-success btn-sm" 
+                                type="button" 
+                                @onclick="AddCustomCategory"
+                                disabled="@(string.IsNullOrWhiteSpace(newCategoryName) || isAddingCategory)">
+                            @if (isAddingCategory)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status"></span>
+                            }
+                            else
+                            {
+                                <i class="fas fa-plus"></i>
+                            }
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Notes List -->
+                <div class="notes-list">
+                    @if (isLoading)
+                    {
+                        <div class="text-center mt-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2 text-muted">Loading notes...</p>
+                        </div>
+                    }
+                    else if (filteredNotes.Any())
+                    {
+                        @foreach (var note in filteredNotes.OrderByDescending(n => n.UpdatedAt))
+                        {
+                            <div class="note-item @(selectedNote?.Id == note.Id ? "selected" : "") @(selectedNoteIds.Contains(note.Id) ? "bulk-selected" : "")" 
+                                 @onclick="() => HandleNoteClick(note)">
+                                @if (isBulkMode)
+                                {
+                                    <div class="form-check position-absolute" style="top: 8px; left: 8px; z-index: 10;">
+                                        <input class="form-check-input" type="checkbox" 
+                                               checked="@selectedNoteIds.Contains(note.Id)"
+                                               @onclick:stopPropagation="true"
+                                               @onchange="(e) => ToggleNoteSelection(note.Id, (bool)e.Value!)" />
+                                    </div>
+                                    <div style="margin-left: 30px;">
+                                        <h6 class="note-title">@(string.IsNullOrEmpty(note.Title) ? "Untitled" : note.Title)</h6>
+                                        <p class="note-preview">@GetNotePreview(note.Content)</p>
+                                        <small class="text-muted">@note.UpdatedAt.ToString("MMM dd, yyyy")</small>
+                                        @if (note.Tags.Any())
+                                        {
+                                            <div class="tags mt-1">
+                                                @foreach (var tag in note.Tags.Take(3))
+                                                {
+                                                    <span class="badge bg-secondary me-1">@tag</span>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <h6 class="note-title">@(string.IsNullOrEmpty(note.Title) ? "Untitled" : note.Title)</h6>
+                                    <p class="note-preview">@GetNotePreview(note.Content)</p>
+                                    <small class="text-muted">@note.UpdatedAt.ToString("MMM dd, yyyy")</small>
+                                    @if (note.Tags.Any())
+                                    {
+                                        <div class="tags mt-1">
+                                            @foreach (var tag in note.Tags.Take(3))
+                                            {
+                                                <span class="badge bg-secondary me-1">@tag</span>
+                                            }
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted mt-4">
+                            <p>No notes found</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 main-content">
+            @if (selectedNote != null)
+            {
+                <NoteEditor Note="selectedNote" OnSave="SaveNote" OnDelete="DeleteNote" />
+            }
+            else
+            {
+                <div class="d-flex align-items-center justify-content-center h-100">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-sticky-note fa-4x mb-3"></i>
+                        <h3>Select a note or create a new one</h3>
+                        <p>Your notes will appear here</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Note> notes = new();
+    private List<Note> filteredNotes = new();
+    private List<Category> categories = new();
+    private Note? selectedNote;
+    private string searchTerm = string.Empty;
+    private string selectedCategory = string.Empty;
+    private string newCategoryName = string.Empty;
+
+    // Loading states
+    private bool isLoading = true;
+    private bool isCreatingNote = false;
+    private bool isAddingCategory = false;
+
+    // Bulk operations
+    private bool isBulkMode = false;
+    private bool isDeletingBulk = false;
+    private HashSet<int> selectedNoteIds = new();
+
+    private string SelectedCategory
+    {
+        get => selectedCategory;
+        set
+        {
+            selectedCategory = value;
+            selectedNote = null; // Clear selection when category filter changes
+            FilterNotes();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadNotes();
+            await LoadCategories();
+        }
+        catch (Exception)
+        {
+            // Error handling is done via toast notifications in the service layer
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadNotes()
+    {
+        notes = await NoteService.GetAllNotesAsync();
+        FilterNotes();
+    }
+
+    private async Task LoadCategories()
+    {
+        categories = await NoteService.GetAllCategoriesAsync();
+    }
+
+    private void FilterNotes()
+    {
+        filteredNotes = notes.ToList();
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredNotes = filteredNotes.Where(n => 
+                n.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                n.Content.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                n.Tags.Any(tag => tag.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+            ).ToList();
+        }
+
+        if (!string.IsNullOrWhiteSpace(selectedCategory))
+        {
+            filteredNotes = filteredNotes.Where(n => n.Category == selectedCategory).ToList();
+        }
+    }
+
+    private async Task OnSearchChanged(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString() ?? string.Empty;
+        FilterNotes();
+        await Task.CompletedTask;
+    }
+
+    private async Task CreateNewNote()
+    {
+        isCreatingNote = true;
+        StateHasChanged();
+        
+        try
+        {
+            var newNote = new Note
+            {
+                Title = "New Note",
+                Content = "",
+                Category = "General"
+            };
+            
+            newNote = await NoteService.CreateNoteAsync(newNote);
+            await LoadNotes();
+            await LoadCategories();
+            selectedNote = newNote;
+        }
+        finally
+        {
+            isCreatingNote = false;
+            StateHasChanged();
+        }
+    }
+
+    private void SelectNote(Note note)
+    {
+        // Toggle selection: if the same note is clicked again, deselect it
+        if (selectedNote?.Id == note.Id)
+        {
+            selectedNote = null;
+        }
+        else
+        {
+            selectedNote = note;
+        }
+    }
+
+    private void ClearSelection()
+    {
+        selectedNote = null;
+        selectedNoteIds.Clear();
+    }
+
+    private async Task SaveNote(Note note)
+    {
+        await NoteService.UpdateNoteAsync(note);
+        await LoadNotes();
+        await LoadCategories();
+    }
+
+    private async Task DeleteNote(Note note)
+    {
+        await NoteService.DeleteNoteAsync(note.Id);
+        await LoadNotes();
+        await LoadCategories();
+        
+        if (selectedNote?.Id == note.Id)
+        {
+            selectedNote = null;
+        }
+    }
+
+    private async Task AddCustomCategory()
+    {
+        if (string.IsNullOrWhiteSpace(newCategoryName))
+            return;
+
+        isAddingCategory = true;
+        StateHasChanged();
+
+        try
+        {
+            await NoteService.AddCustomCategoryAsync(newCategoryName.Trim());
+            await LoadCategories();
+            newCategoryName = string.Empty;
+        }
+        finally
+        {
+            isAddingCategory = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task OnCategoryKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await AddCustomCategory();
+        }
+    }
+
+    private string GetNotePreview(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+            return "No additional text";
+        
+        var plainText = System.Text.RegularExpressions.Regex.Replace(content, "<.*?>", "");
+        return plainText.Length > 100 ? plainText.Substring(0, 100) + "..." : plainText;
+    }
+
+    // Bulk operation methods
+    private void ToggleBulkMode()
+    {
+        isBulkMode = !isBulkMode;
+        if (!isBulkMode)
+        {
+            selectedNoteIds.Clear();
+        }
+        // Clear single selection when entering bulk mode
+        if (isBulkMode)
+        {
+            selectedNote = null;
+        }
+    }
+
+    private void HandleNoteClick(Note note)
+    {
+        if (isBulkMode)
+        {
+            ToggleNoteSelection(note.Id, !selectedNoteIds.Contains(note.Id));
+        }
+        else
+        {
+            SelectNote(note);
+        }
+    }
+
+    private void ToggleNoteSelection(int noteId, bool isSelected)
+    {
+        if (isSelected)
+        {
+            selectedNoteIds.Add(noteId);
+        }
+        else
+        {
+            selectedNoteIds.Remove(noteId);
+        }
+    }
+
+    private void SelectAllNotes()
+    {
+        selectedNoteIds.Clear();
+        foreach (var note in filteredNotes)
+        {
+            selectedNoteIds.Add(note.Id);
+        }
+    }
+
+    private async Task DeleteSelectedNotes()
+    {
+        if (!selectedNoteIds.Any())
+            return;
+
+        var noteCount = selectedNoteIds.Count;
+        var confirmMessage = $"Are you sure you want to delete {noteCount} note{(noteCount > 1 ? "s" : "")}? This action cannot be undone.";
+        
+        // Simple confirmation using browser's confirm dialog
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", confirmMessage);
+        if (!confirmed)
+            return;
+
+        isDeletingBulk = true;
+        StateHasChanged();
+
+        try
+        {
+            // Delete notes one by one (we can optimize this with a bulk API later)
+            var notesToDelete = selectedNoteIds.ToList();
+            foreach (var noteId in notesToDelete)
+            {
+                await NoteService.DeleteNoteAsync(noteId);
+            }
+
+            selectedNoteIds.Clear();
+            await LoadNotes();
+            await LoadCategories();
+            
+            // Exit bulk mode after successful deletion
+            isBulkMode = false;
+        }
+        finally
+        {
+            isDeletingBulk = false;
+            StateHasChanged();
+        }
+    }
+}

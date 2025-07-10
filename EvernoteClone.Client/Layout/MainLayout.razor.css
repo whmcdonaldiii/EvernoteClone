@@ -1,0 +1,31 @@
+.page {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.navbar-header {
+    background: linear-gradient(90deg, #00a82d 0%, #008c26 70%);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    min-height: 60px;
+    max-height: 80px;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: calc(100vh - 80px);
+}
+
+.content {
+    flex: 1;
+    padding: 0;
+    overflow: hidden;
+    height: 100%;
+}

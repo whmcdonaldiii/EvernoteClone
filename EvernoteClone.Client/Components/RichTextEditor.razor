@@ -1,0 +1,118 @@
+@using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
+
+<div class="rich-text-editor h-100">
+    <div id="@EditorId" class="h-100"></div>
+</div>
+
+@code {
+    [Parameter] public string Content { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> ContentChanged { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "Start writing your note...";
+
+    private string EditorId = $"quill-editor-{Guid.NewGuid():N}";
+    private DotNetObjectReference<RichTextEditor>? dotNetRef;
+    private bool isInitialized = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                dotNetRef = DotNetObjectReference.Create(this);
+                var success = await JSRuntime.InvokeAsync<bool>("quillInterop.initializeQuill", EditorId, dotNetRef, Content);
+                
+                if (success)
+                {
+                    isInitialized = true;
+                }
+                else
+                {
+                    Console.WriteLine("Failed to initialize Quill editor");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing rich text editor: {ex.Message}");
+            }
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnContentChanged(string content)
+    {
+        if (Content != content)
+        {
+            Content = content;
+            await ContentChanged.InvokeAsync(content);
+        }
+    }
+
+    public async Task SetContentAsync(string content)
+    {
+        if (isInitialized)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("quillInterop.setContent", EditorId, content);
+                Content = content;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error setting content: {ex.Message}");
+            }
+        }
+    }
+
+    public async Task<string> GetContentAsync()
+    {
+        if (isInitialized)
+        {
+            try
+            {
+                return await JSRuntime.InvokeAsync<string>("quillInterop.getContent", EditorId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting content: {ex.Message}");
+                return Content;
+            }
+        }
+        return Content;
+    }
+
+    public async Task FocusAsync()
+    {
+        if (isInitialized)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("quillInterop.focus", EditorId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error focusing editor: {ex.Message}");
+            }
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (isInitialized)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("quillInterop.destroyQuill", EditorId);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error destroying Quill editor: {ex.Message}");
+            }
+        }
+
+        dotNetRef?.Dispose();
+    }
+}

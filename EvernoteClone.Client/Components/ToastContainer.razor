@@ -1,0 +1,96 @@
+@using EvernoteClone.Services
+@inject IToastService ToastService
+@implements IDisposable
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    @foreach (var toast in toasts)
+    {
+        <div class="toast show @GetToastClass(toast.Type)" role="alert">
+            <div class="toast-header">
+                <i class="@GetToastIcon(toast.Type) me-2"></i>
+                <strong class="me-auto">@GetToastTitle(toast.Type)</strong>
+                <button type="button" class="btn-close" @onclick="() => RemoveToast(toast)"></button>
+            </div>
+            <div class="toast-body">
+                @toast.Message
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<ToastItem> toasts = new();
+    private Timer? timer;
+
+    public class ToastItem
+    {
+        public string Message { get; set; } = string.Empty;
+        public ToastType Type { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+    }
+
+    protected override void OnInitialized()
+    {
+        ToastService.OnToastShow += ShowToast;
+        timer = new Timer(RemoveExpiredToasts, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+    }
+
+    private void ShowToast(string message, ToastType type)
+    {
+        var toast = new ToastItem { Message = message, Type = type };
+        toasts.Add(toast);
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void RemoveToast(ToastItem toast)
+    {
+        toasts.Remove(toast);
+        StateHasChanged();
+    }
+
+    private void RemoveExpiredToasts(object? state)
+    {
+        var expiredToasts = toasts.Where(t => DateTime.Now - t.CreatedAt > TimeSpan.FromSeconds(5)).ToList();
+        if (expiredToasts.Any())
+        {
+            foreach (var toast in expiredToasts)
+            {
+                toasts.Remove(toast);
+            }
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private string GetToastClass(ToastType type) => type switch
+    {
+        ToastType.Success => "border-success",
+        ToastType.Error => "border-danger",
+        ToastType.Warning => "border-warning",
+        ToastType.Info => "border-info",
+        _ => "border-secondary"
+    };
+
+    private string GetToastIcon(ToastType type) => type switch
+    {
+        ToastType.Success => "fas fa-check-circle text-success",
+        ToastType.Error => "fas fa-times-circle text-danger",
+        ToastType.Warning => "fas fa-exclamation-triangle text-warning",
+        ToastType.Info => "fas fa-info-circle text-info",
+        _ => "fas fa-bell text-secondary"
+    };
+
+    private string GetToastTitle(ToastType type) => type switch
+    {
+        ToastType.Success => "Success",
+        ToastType.Error => "Error",
+        ToastType.Warning => "Warning",
+        ToastType.Info => "Info",
+        _ => "Notification"
+    };
+
+    public void Dispose()
+    {
+        ToastService.OnToastShow -= ShowToast;
+        timer?.Dispose();
+    }
+}

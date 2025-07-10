@@ -1,0 +1,164 @@
+@inject INoteService NoteService
+
+<div class="note-editor h-100 d-flex flex-column">
+    <!-- Note Header -->
+    <div class="note-header border-bottom p-3">
+        <div class="row align-items-center">
+            <div class="col">
+                <input type="text" class="form-control form-control-lg border-0" 
+                       placeholder="Note title..." @bind="Note.Title" @oninput="OnTitleChanged" />
+            </div>
+            <div class="col-auto">
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary" @onclick="SaveNote" title="Save" disabled="@isSaving">
+                        @if (isSaving)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                        }
+                        else
+                        {
+                            <i class="fas fa-save"></i>
+                        }
+                    </button>
+                    <button class="btn btn-outline-danger" @onclick="DeleteNote" title="Delete" disabled="@isDeleting">
+                        @if (isDeleting)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                        }
+                        else
+                        {
+                            <i class="fas fa-trash"></i>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Metadata -->
+        <div class="row mt-2">
+            <div class="col-md-6">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">Category</span>
+                    <select class="form-select" @bind="SelectedCategory">
+                        <option value="">Select Category</option>
+                        @foreach (var category in categories)
+                        {
+                            <option value="@category.Name">@category.Name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">Tags</span>
+                    <input type="text" class="form-control" placeholder="tag1, tag2, tag3" 
+                           value="@string.Join(", ", Note.Tags)" @oninput="OnTagsChanged" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Note Content -->
+    <div class="note-content flex-fill p-3">
+        <RichTextEditor Content="@Note.Content" 
+                       ContentChanged="OnRichTextContentChanged" />
+    </div>
+
+    <!-- Note Footer -->
+    <div class="note-footer border-top p-2 text-muted small">
+        <div class="row">
+            <div class="col">
+                Created: @Note.CreatedAt.ToString("MMM dd, yyyy 'at' h:mm tt")
+            </div>
+            <div class="col text-end">
+                Updated: @Note.UpdatedAt.ToString("MMM dd, yyyy 'at' h:mm tt")
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Note Note { get; set; } = new();
+    [Parameter] public EventCallback<Note> OnSave { get; set; }
+    [Parameter] public EventCallback<Note> OnDelete { get; set; }
+
+    private List<Category> categories = new();
+    private bool isSaving = false;
+    private bool isDeleting = false;
+
+    private string SelectedCategory
+    {
+        get => Note.Category;
+        set
+        {
+            Note.Category = value;
+            Note.UpdatedAt = DateTime.UtcNow;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategories();
+    }
+
+    private async Task LoadCategories()
+    {
+        categories = await NoteService.GetAllCategoriesAsync();
+    }
+
+    private async Task OnTitleChanged(ChangeEventArgs e)
+    {
+        Note.UpdatedAt = DateTime.UtcNow;
+        await Task.CompletedTask;
+    }
+
+    private async Task OnRichTextContentChanged(string content)
+    {
+        Note.Content = content;
+        Note.UpdatedAt = DateTime.UtcNow;
+        await Task.CompletedTask;
+    }
+
+    private async Task OnTagsChanged(ChangeEventArgs e)
+    {
+        var tagsString = e.Value?.ToString() ?? string.Empty;
+        Note.Tags = tagsString.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                             .Select(tag => tag.Trim())
+                             .Where(tag => !string.IsNullOrWhiteSpace(tag))
+                             .ToList();
+        Note.UpdatedAt = DateTime.UtcNow;
+        await Task.CompletedTask;
+    }
+
+    private async Task SaveNote()
+    {
+        isSaving = true;
+        StateHasChanged();
+        
+        try
+        {
+            await OnSave.InvokeAsync(Note);
+        }
+        finally
+        {
+            isSaving = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DeleteNote()
+    {
+        isDeleting = true;
+        StateHasChanged();
+        
+        try
+        {
+            await OnDelete.InvokeAsync(Note);
+        }
+        finally
+        {
+            isDeleting = false;
+            StateHasChanged();
+        }
+    }
+}

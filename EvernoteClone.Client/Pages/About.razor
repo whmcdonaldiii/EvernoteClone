@@ -1,0 +1,118 @@
+@page "/about"
+
+<PageTitle>About - EvernoteClone</PageTitle>
+
+<div class="container-fluid h-100">
+    <div class="d-flex align-items-center justify-content-center h-100">
+        <div class="text-center" style="max-width: 600px;">
+            <div class="mb-4">
+                <i class="fas fa-sticky-note fa-5x text-primary mb-3"></i>
+                <h1 class="display-4 fw-bold text-primary">EvernoteClone</h1>
+                <p class="lead text-muted">Your personal note-taking companion</p>
+            </div>
+            
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="feature-card p-3">
+                        <i class="fas fa-edit fa-2x text-success mb-2"></i>
+                        <h5>Rich Text Editing</h5>
+                        <p class="text-muted small">Create and edit notes with ease using our intuitive editor</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card p-3">
+                        <i class="fas fa-tags fa-2x text-info mb-2"></i>
+                        <h5>Organization</h5>
+                        <p class="text-muted small">Use categories and tags to keep your notes organized</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card p-3">
+                        <i class="fas fa-search fa-2x text-warning mb-2"></i>
+                        <h5>Quick Search</h5>
+                        <p class="text-muted small">Find any note instantly with our powerful search feature</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="about-content text-start">
+                <h4 class="text-primary mb-3">About This App</h4>
+                <p>
+                    EvernoteClone is a modern, web-based note-taking application built with 
+                    <strong>Blazor WebAssembly</strong> and <strong>C#</strong>. It provides a clean, 
+                    intuitive interface for capturing, organizing, and managing your thoughts and ideas.
+                </p>
+                
+                <h5 class="text-secondary mt-4 mb-2">Key Features:</h5>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success me-2"></i>Create and edit notes with a rich text editor</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Organize notes with categories and tags</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Search through all your notes instantly</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Local storage keeps your data private</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Responsive design works on all devices</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Clean, modern interface inspired by Evernote</li>
+                </ul>
+                
+                <h5 class="text-secondary mt-4 mb-2">Technology Stack:</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-primary">Blazor WebAssembly</span>
+                    <span class="badge bg-secondary">C#</span>
+                    <span class="badge bg-info">Bootstrap 5</span>
+                    <span class="badge bg-success">Local Storage API</span>
+                    <span class="badge bg-warning text-dark">Font Awesome</span>
+                </div>
+                
+                <div class="mt-4 pt-3 border-top">
+                    <p class="text-muted small mb-0">
+                        <i class="fas fa-code me-1"></i>
+                        Built with ❤️ using modern web technologies for a fast, reliable note-taking experience.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-4 mb-5">
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Notes
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .feature-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
+        transition: all 0.2s ease;
+        height: 100%;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    .about-content {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
+    }
+    
+    .text-primary {
+        color: #00a82d !important;
+    }
+    
+    .btn-primary {
+        background-color: #00a82d;
+        border-color: #00a82d;
+    }
+    
+    .btn-primary:hover {
+        background-color: #008c26;
+        border-color: #008c26;
+    }
+</style>
