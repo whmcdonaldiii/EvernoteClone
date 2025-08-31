@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EvernoteClone.Client", "EvernoteClone.Client", "{AE388E6B-8915-A0A4-AB0D-39B8DF377EDB}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NoteNest.Client", "NoteNest.Client", "{AE388E6B-8915-A0A4-AB0D-39B8DF377EDB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvernoteClone", "EvernoteClone.Client\EvernoteClone.csproj", "{276EBD1B-328D-4AAF-B048-BDD511AE462E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteNest", "NoteNest.Client\NoteNest.csproj", "{276EBD1B-328D-4AAF-B048-BDD511AE462E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvernoteClone.Server", "EvernoteClone.Server\EvernoteClone.Server.csproj", "{D5FD3FD2-7596-4830-B332-F6F0F2915E93}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteNest.Server", "NoteNest.Server\NoteNest.Server.csproj", "{D5FD3FD2-7596-4830-B332-F6F0F2915E93}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvernoteClone.Shared", "EvernoteClone.Shared\EvernoteClone.Shared.csproj", "{5165AD6D-BC1D-42B5-8A54-F126982ACD12}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteNest.Shared", "NoteNest.Shared\NoteNest.Shared.csproj", "{5165AD6D-BC1D-42B5-8A54-F126982ACD12}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,4 +1,4 @@
-using EvernoteClone.Server.Data;
+using NoteNest.Server.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

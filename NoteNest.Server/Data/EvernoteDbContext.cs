@@ -1,7 +1,7 @@
-using EvernoteClone.Shared.Models;
+using NoteNest.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace EvernoteClone.Server.Data;
+namespace NoteNest.Server.Data;
 
 public class EvernoteDbContext : DbContext
 {

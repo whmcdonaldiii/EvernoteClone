@@ -1,4 +1,4 @@
-namespace EvernoteClone.Shared.Models;
+namespace NoteNest.Shared.Models;
 
 public class Category
 {

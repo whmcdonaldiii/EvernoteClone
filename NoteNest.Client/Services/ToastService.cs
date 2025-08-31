@@ -1,4 +1,4 @@
-namespace EvernoteClone.Services;
+namespace NoteNest.Services;
 
 public interface IToastService
 {

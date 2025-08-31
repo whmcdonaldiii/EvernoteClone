@@ -1,9 +1,9 @@
-using EvernoteClone.Server.Data;
-using EvernoteClone.Shared.Models;
+using NoteNest.Server.Data;
+using NoteNest.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace EvernoteClone.Server.Controllers;
+namespace NoteNest.Server.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

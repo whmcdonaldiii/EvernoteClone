@@ -1,9 +1,9 @@
-using EvernoteClone.Shared.Models;
+using NoteNest.Shared.Models;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Blazored.LocalStorage;
 
-namespace EvernoteClone.Services;
+namespace NoteNest.Services;
 
 public interface INoteService
 {

@@ -1,4 +1,4 @@
-# EvernoteClone - Personal Note-Taking Application
+# NoteNest - Personal Note-Taking Application
 
 A modern, feature-rich note-taking application built with Blazor WebAssembly and .NET 9, designed for personal use.
 
@@ -32,14 +32,14 @@ A modern, feature-rich note-taking application built with Blazor WebAssembly and
 
 1. **Start the Server** (API Backend):
    ```bash
-   cd EvernoteClone.Server
+   cd NoteNest.Server
    dotnet run
    ```
    The server will start on `http://localhost:5059`
 
 2. **Start the Client** (Blazor WebAssembly):
    ```bash
-   cd EvernoteClone.Client
+   cd NoteNest.Client
    dotnet run
    ```
    The client will start on `http://localhost:5194`
@@ -49,23 +49,23 @@ A modern, feature-rich note-taking application built with Blazor WebAssembly and
 ## Project Structure
 
 ```
-EvernoteClone/
-├── EvernoteClone.Client/          # Blazor WebAssembly frontend
+NoteNest/
+├── NoteNest.Client/          # Blazor WebAssembly frontend
 │   ├── Components/                # Reusable UI components
 │   ├── Pages/                     # Application pages
 │   ├── Services/                  # Client-side services
 │   └── wwwroot/                   # Static assets
-├── EvernoteClone.Server/          # .NET Web API backend
+├── NoteNest.Server/          # .NET Web API backend
 │   ├── Controllers/               # API endpoints
 │   ├── Data/                      # Database context
 │   └── Services/                  # Server-side services
-├── EvernoteClone.Shared/          # Shared models and DTOs
-└── EvernoteClone.Data/            # Data access layer
+├── NoteNest.Shared/          # Shared models and DTOs
+└── NoteNest.Data/            # Data access layer
 ```
 
 ## Database
 
-The application uses SQLite for data storage. The database file (`evernote.db`) is automatically created in the `EvernoteClone.Server` directory when you first run the application.
+The application uses SQLite for data storage. The database file (`evernote.db`) is automatically created in the `NoteNest.Server` directory when you first run the application.
 
 ### Default Categories
 - General
@@ -106,7 +106,7 @@ dotnet test
 ### Database Migrations
 If you need to update the database schema:
 ```bash
-cd EvernoteClone.Server
+cd NoteNest.Server
 dotnet ef migrations add MigrationName
 dotnet ef database update
 ```
@@ -114,13 +114,13 @@ dotnet ef database update
 ## Configuration
 
 ### Server Configuration
-Edit `EvernoteClone.Server/appsettings.json` to modify:
+Edit `NoteNest.Server/appsettings.json` to modify:
 - Database connection string
 - CORS settings
 - Logging configuration
 
 ### Client Configuration
-The client is configured to connect to the server at `http://localhost:5059`. If you change the server port, update the `BaseAddress` in `EvernoteClone.Client/Program.cs`.
+The client is configured to connect to the server at `http://localhost:5059`. If you change the server port, update the `BaseAddress` in `NoteNest.Client/Program.cs`.
 
 ## Troubleshooting
 

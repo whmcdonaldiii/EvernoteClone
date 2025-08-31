@@ -24,9 +24,9 @@ This guide provides tips and best practices for developing and maintaining your 
 .\start-local.ps1
 
 # Option 2: Manual startup
-cd EvernoteClone.Server && dotnet run
+cd NoteNest.Server && dotnet run
 # In another terminal:
-cd EvernoteClone.Client && dotnet run
+cd NoteNest.Client && dotnet run
 ```
 
 ### Hot Reload
@@ -38,11 +38,11 @@ Both the client and server support hot reload:
 ### Database Changes
 If you need to modify the database schema:
 
-1. Update the models in `EvernoteClone.Shared/Models/`
-2. Update the DbContext in `EvernoteClone.Server/Data/EvernoteDbContext.cs`
+1. Update the models in `NoteNest.Shared/Models/`
+2. Update the DbContext in `NoteNest.Server/Data/EvernoteDbContext.cs`
 3. Create a migration:
    ```bash
-   cd EvernoteClone.Server
+   cd NoteNest.Server
    dotnet ef migrations add MigrationName
    dotnet ef database update
    ```
@@ -87,17 +87,17 @@ Implemented using Blazored.LocalStorage:
 ## Adding New Features
 
 ### Adding a New API Endpoint
-1. Create or update a controller in `EvernoteClone.Server/Controllers/`
-2. Add the corresponding service method in `EvernoteClone.Client/Services/`
+1. Create or update a controller in `NoteNest.Server/Controllers/`
+2. Add the corresponding service method in `NoteNest.Client/Services/`
 3. Update the UI to use the new functionality
 
 ### Adding a New Page
-1. Create a new `.razor` file in `EvernoteClone.Client/Pages/`
+1. Create a new `.razor` file in `NoteNest.Client/Pages/`
 2. Add the `@page` directive with the route
 3. Update navigation if needed
 
 ### Adding a New Component
-1. Create a new `.razor` file in `EvernoteClone.Client/Components/`
+1. Create a new `.razor` file in `NoteNest.Client/Components/`
 2. Define parameters using `[Parameter]` attributes
 3. Use the component in pages or other components
 
@@ -147,14 +147,14 @@ Consider adding:
 dotnet publish -c Release
 
 # The published files will be in:
-# EvernoteClone.Server/bin/Release/net9.0/publish/
-# EvernoteClone.Client/bin/Release/net9.0/publish/
+# NoteNest.Server/bin/Release/net9.0/publish/
+# NoteNest.Client/bin/Release/net9.0/publish/
 ```
 
 ### Database Backup
-The SQLite database is in `EvernoteClone.Server/evernote.db`. Back it up regularly:
+The SQLite database is in `NoteNest.Server/evernote.db`. Back it up regularly:
 ```bash
-cp EvernoteClone.Server/evernote.db EvernoteClone.Server/evernote.db.backup
+cp NoteNest.Server/evernote.db NoteNest.Server/evernote.db.backup
 ```
 
 ## Troubleshooting
