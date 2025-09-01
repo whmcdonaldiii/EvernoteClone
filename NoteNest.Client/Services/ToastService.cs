@@ -1,4 +1,4 @@
-namespace NoteNest.Services;
+namespace NoteNest.Client.Services;
 
 public interface IToastService
 {

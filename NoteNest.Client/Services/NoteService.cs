@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Blazored.LocalStorage;
 
-namespace NoteNest.Services;
+namespace NoteNest.Client.Services;
 
 public interface INoteService
 {

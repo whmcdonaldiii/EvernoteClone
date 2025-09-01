@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using NoteNest;
-using NoteNest.Services;
+using NoteNest.Client;
+using NoteNest.Client.Services;
 using Radzen;
 using Blazored.LocalStorage;
 
